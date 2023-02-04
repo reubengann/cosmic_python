@@ -15,6 +15,16 @@ def test_can_allocate_if_available_greater_than_required():
     assert large_batch.can_allocate(small_line)
 
 
+def test_cannot_allocate_if_available_smaller_than_required():
+    large_batch, small_line = make_batch_and_line("ELEGANT-LAMP", 20, 21)
+    assert not large_batch.can_allocate(small_line)
+
+
+def test_can_allocate_if_available_equal_to_required():
+    large_batch, small_line = make_batch_and_line("ELEGANT-LAMP", 20, 20)
+    assert large_batch.can_allocate(small_line)
+
+
 def make_batch_and_line(sku, batch_qty, line_qty):
     return (
         Batch("batch-001", sku, batch_qty, eta=date.today()),
