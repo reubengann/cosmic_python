@@ -29,13 +29,16 @@ def allocate(line: OrderLine, batches: list[Batch]):
     best.allocate(line)
 
 
-def find_best_batch(line, batches) -> Batch:
+def find_best_batch(line: OrderLine, batches: list[Batch]) -> Batch:
     best = None
+    best_time = date.max
     for batch in batches:
         if batch.sku == line.sku:
-            best = batch
             if batch.eta is None:
                 return batch
+            if batch.eta < best_time:
+                best = batch
+                best_time = batch.eta
     if best is None:
-        raise Exception("No batch with that SKU")
+        raise Exception(f"No batch with SKU {line.sku}")
     return best
