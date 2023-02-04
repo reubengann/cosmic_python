@@ -22,3 +22,20 @@ class Batch:
 
     def can_allocate(self, line: OrderLine) -> bool:
         return line.qty <= self.available_quantity
+
+
+def allocate(line: OrderLine, batches: list[Batch]):
+    best = find_best_batch(line, batches)
+    best.allocate(line)
+
+
+def find_best_batch(line, batches) -> Batch:
+    best = None
+    for batch in batches:
+        if batch.sku == line.sku:
+            best = batch
+            if batch.eta is None:
+                return batch
+    if best is None:
+        raise Exception("No batch with that SKU")
+    return best

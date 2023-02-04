@@ -1,6 +1,10 @@
-from datetime import date
+from datetime import date, timedelta
 
-from models import Batch, OrderLine
+from models import Batch, OrderLine, allocate
+
+today = date.today()
+tomorrow = today + timedelta(days=1)
+later = tomorrow + timedelta(days=10)
 
 
 def test_allocating_to_a_batch_reduces_the_available_quantity():
@@ -23,6 +27,17 @@ def test_cannot_allocate_if_available_smaller_than_required():
 def test_can_allocate_if_available_equal_to_required():
     large_batch, small_line = make_batch_and_line("ELEGANT-LAMP", 20, 20)
     assert large_batch.can_allocate(small_line)
+
+
+def test_prefers_warehouse_batches_to_shipments():
+    in_stock_batch = Batch("in-stock-batch", "RETRO-CLOCK", 100, eta=None)
+    shipment_batch = Batch("shipment-batch", "RETRO-CLOCK", 100, eta=tomorrow)
+    line = OrderLine("oref", "RETRO-CLOCK", 10)
+
+    allocate(line, [in_stock_batch, shipment_batch])
+
+    assert in_stock_batch.available_quantity == 90
+    assert shipment_batch.available_quantity == 100
 
 
 def make_batch_and_line(sku, batch_qty, line_qty):
