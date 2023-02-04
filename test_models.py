@@ -51,6 +51,12 @@ def test_prefers_earlier_batches():
     assert later_batch.available_quantity == 100
 
 
+def test_cannot_allocate_if_skus_do_not_match():
+    batch = Batch("batch-001", "UNCOMFORTABLE-CHAIR", 100, eta=None)
+    different_sku_line = OrderLine("order-123", "EXPENSIVE-TOASTER", 10)
+    assert batch.can_allocate(different_sku_line) is False
+
+
 def make_batch_and_line(sku, batch_qty, line_qty):
     return (
         Batch("batch-001", sku, batch_qty, eta=date.today()),

@@ -21,6 +21,8 @@ class Batch:
         self.available_quantity -= line.qty
 
     def can_allocate(self, line: OrderLine) -> bool:
+        if line.sku != self.sku:
+            return False
         return line.qty <= self.available_quantity
 
 
@@ -33,7 +35,7 @@ def find_best_batch(line: OrderLine, batches: list[Batch]) -> Batch:
     best = None
     best_time = date.max
     for batch in batches:
-        if batch.sku == line.sku:
+        if batch.can_allocate(line):
             if batch.eta is None:
                 return batch
             if batch.eta < best_time:
