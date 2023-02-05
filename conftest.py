@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from db_tables import metadata
+from orm import metadata
 
 
 @pytest.fixture
