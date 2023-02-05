@@ -23,6 +23,9 @@ class Batch:
         self._purchased_quantity = qty
         self._allocations = set()
 
+    def __hash__(self) -> int:
+        return hash(self.reference)
+
     def __eq__(self, other):
         if not isinstance(other, Batch):
             return False
@@ -50,7 +53,7 @@ class Batch:
         return line.qty <= self.available_quantity
 
 
-def allocate(line: OrderLine, batches: list[Batch]) -> str:
+def allocate_line_to_batches(line: OrderLine, batches: list[Batch]) -> str:
     best = find_best_batch(line, batches)
     if best is None:
         raise OutOfStock(f"Out of stock for sku {line.sku}")
