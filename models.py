@@ -30,7 +30,11 @@ class Batch:
 
     @property
     def available_quantity(self) -> int:
-        return self._puchased_quantity - sum(l.qty for l in self._lines)
+        return self._puchased_quantity - self.allocated_quantity
+
+    @property
+    def allocated_quantity(self):
+        return sum(l.qty for l in self._lines)
 
     def can_allocate(self, line: OrderLine) -> bool:
         if line.sku != self.sku:
