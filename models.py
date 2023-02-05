@@ -23,6 +23,11 @@ class Batch:
         self._purchased_quantity = qty
         self._allocations = set()
 
+    def __eq__(self, other):
+        if not isinstance(other, Batch):
+            return False
+        return other.reference == self.reference
+
     def allocate(self, line: OrderLine):
         if line not in self._allocations:
             self._allocations.add(line)
