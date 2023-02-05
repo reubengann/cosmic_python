@@ -42,9 +42,10 @@ class Batch:
         return line.qty <= self.available_quantity
 
 
-def allocate(line: OrderLine, batches: list[Batch]):
+def allocate(line: OrderLine, batches: list[Batch]) -> str:
     best = find_best_batch(line, batches)
     best.allocate(line)
+    return best.reference
 
 
 def find_best_batch(line: OrderLine, batches: list[Batch]) -> Batch:
