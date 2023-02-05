@@ -15,4 +15,7 @@ def allocate(line: OrderLine, repo: Repository, session):
     batches = repo.list()
     if not is_valid_sku(line.sku, batches):
         raise InvalidSku(f"Invalid sku {line.sku}")
-    return models.allocate_line_to_batches(line, batches)
+    batchref = models.allocate_line_to_batches(line, batches)
+    # magic
+    session.commit()
+    return batchref
