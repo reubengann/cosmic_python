@@ -19,7 +19,7 @@ class Batch:
         self.reference = ref
         self.sku = sku
         self.eta = eta
-        self._puchased_quantity = qty
+        self._purchased_quantity = qty
         self._lines = set()
 
     def allocate(self, line: OrderLine):
@@ -32,7 +32,7 @@ class Batch:
 
     @property
     def available_quantity(self) -> int:
-        return self._puchased_quantity - self.allocated_quantity
+        return self._purchased_quantity - self.allocated_quantity
 
     @property
     def allocated_quantity(self):
