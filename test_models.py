@@ -64,6 +64,13 @@ def test_allocation_is_idempotent():
     assert batch.available_quantity == 18
 
 
+def test_deallocate():
+    batch, line = make_batch_and_line("EXPENSIVE-FOOTSTOOL", 20, 2)
+    batch.allocate(line)
+    batch.deallocate(line)
+    assert batch.available_quantity == 20
+
+
 def make_batch_and_line(sku, batch_qty, line_qty):
     return (
         Batch("batch-001", sku, batch_qty, eta=date.today()),
