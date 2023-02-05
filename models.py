@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Optional, Set
 
+class OutOfStock(Exception):
+    pass
 
 @dataclass(frozen=True)
 class OrderLine:
@@ -44,11 +46,13 @@ class Batch:
 
 def allocate(line: OrderLine, batches: list[Batch]) -> str:
     best = find_best_batch(line, batches)
+    if best is None:
+        raise OutOfStock(f"Out of stock for sku {line.sku}")
     best.allocate(line)
     return best.reference
 
 
-def find_best_batch(line: OrderLine, batches: list[Batch]) -> Batch:
+def find_best_batch(line: OrderLine, batches: list[Batch]) -> Batch | None:
     best = None
     best_time = date.max
     for batch in batches:
@@ -59,6 +63,6 @@ def find_best_batch(line: OrderLine, batches: list[Batch]) -> Batch:
         if batch.eta < best_time:
             best = batch
             best_time = batch.eta
-    if best is None:
-        raise Exception(f"No batch with SKU {line.sku}")
     return best
+
+    
