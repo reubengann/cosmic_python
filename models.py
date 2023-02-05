@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import date
-from typing import Optional
+from typing import Optional, Set
 
 
 @dataclass(frozen=True)
@@ -11,17 +11,22 @@ class OrderLine:
 
 
 class Batch:
+    _lines: Set[OrderLine]
+
     def __init__(self, ref: str, sku: str, qty: int, eta: Optional[date]):
         self.reference = ref
         self.sku = sku
         self.eta = eta
-        self.available_quantity = qty
+        self._puchased_quantity = qty
         self._lines = set()
 
     def allocate(self, line: OrderLine):
         if line not in self._lines:
-            self.available_quantity -= line.qty
             self._lines.add(line)
+
+    @property
+    def available_quantity(self) -> int:
+        return self._puchased_quantity - sum(l.qty for l in self._lines)
 
     def can_allocate(self, line: OrderLine) -> bool:
         if line.sku != self.sku:
