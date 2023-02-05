@@ -16,9 +16,12 @@ class Batch:
         self.sku = sku
         self.eta = eta
         self.available_quantity = qty
+        self._lines = set()
 
     def allocate(self, line: OrderLine):
-        self.available_quantity -= line.qty
+        if line not in self._lines:
+            self.available_quantity -= line.qty
+            self._lines.add(line)
 
     def can_allocate(self, line: OrderLine) -> bool:
         if line.sku != self.sku:
