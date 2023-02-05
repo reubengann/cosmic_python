@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import models
+from sqlalchemy import select
 
 
 class Repository(ABC):
@@ -19,5 +20,6 @@ class SqlRepository(Repository):
     def add(self, batch: models.Batch):
         self.session.add(batch)
 
-    def get(self, reference) -> models.Batch:
-        raise NotImplementedError
+    def get(self, reference: str) -> models.Batch:
+        stmt = select(models.Batch).filter_by(reference=reference)
+        return self.session.execute(stmt).scalar_one()

@@ -5,7 +5,7 @@ from typing import Optional, Set
 class OutOfStock(Exception):
     pass
 
-@dataclass(frozen=True)
+@dataclass(unsafe_hash=True)
 class OrderLine:
     order_id: str
     sku: str
@@ -13,22 +13,23 @@ class OrderLine:
 
 
 class Batch:
-    _lines: Set[OrderLine]
+    reference: str
+    _allocations: Set[OrderLine]
 
     def __init__(self, ref: str, sku: str, qty: int, eta: Optional[date]):
         self.reference = ref
         self.sku = sku
         self.eta = eta
         self._purchased_quantity = qty
-        self._lines = set()
+        self._allocations = set()
 
     def allocate(self, line: OrderLine):
-        if line not in self._lines:
-            self._lines.add(line)
+        if line not in self._allocations:
+            self._allocations.add(line)
 
     def deallocate(self, line: OrderLine):
-        if line in self._lines:
-            self._lines.remove(line)
+        if line in self._allocations:
+            self._allocations.remove(line)
 
     @property
     def available_quantity(self) -> int:
@@ -36,7 +37,7 @@ class Batch:
 
     @property
     def allocated_quantity(self):
-        return sum(l.qty for l in self._lines)
+        return sum(l.qty for l in self._allocations)
 
     def can_allocate(self, line: OrderLine) -> bool:
         if line.sku != self.sku:
