@@ -25,11 +25,8 @@ class Batch:
             self._lines.add(line)
 
     def deallocate(self, line: OrderLine):
-        if line not in self._lines:
-            raise Exception(
-                f"Line with sku {line.sku} cannot be deallocated because it is not in the set"
-            )
-        self._lines.remove(line)
+        if line in self._lines:
+            self._lines.remove(line)
 
     @property
     def available_quantity(self) -> int:
