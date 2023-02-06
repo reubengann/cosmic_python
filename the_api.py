@@ -24,6 +24,6 @@ def allocate_endpoint(line: LineItemRequest, session=Depends(get_session)):
     repo = SqlRepository(session)
     try:
         ref = services.allocate(line_item, repo, session)
-    except services.InvalidSku as e:
+    except (services.InvalidSku, models.OutOfStock) as e:
         raise HTTPException(status_code=400, detail=str(e))
     return {"batchref": ref}

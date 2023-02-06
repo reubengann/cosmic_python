@@ -77,3 +77,16 @@ def test_allocations_are_persisted(disk_session):
     r = client.post(f"/allocate", json=line2)
     assert r.status_code == 201
     assert r.json()["batchref"] == batch2
+
+
+def test_400_message_for_out_of_stock(disk_session):
+    app.dependency_overrides[get_session] = lambda: disk_session
+    client = TestClient(app)
+    sku, small_batch, large_order = random_sku(), random_batchref(), random_orderid()
+    repo = SqlRepository(disk_session)
+    repo.add(Batch(small_batch, sku, 10, date(2011, 1, 1)))
+    disk_session.commit()
+    data = {"order_id": large_order, "sku": sku, "qty": 20}
+    r = client.post(f"/allocate", json=data)
+    assert r.status_code == 400
+    assert r.json()["detail"] == f"Out of stock for sku {sku}"
