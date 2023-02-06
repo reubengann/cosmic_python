@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 
 import services
@@ -22,6 +22,8 @@ class LineItemRequest(BaseModel):
 def allocate_endpoint(line: LineItemRequest, session=Depends(get_session)):
     line_item = models.OrderLine(line.order_id, line.sku, line.qty)
     repo = SqlRepository(session)
-
-    ref = services.allocate(line_item, repo, session)
+    try:
+        ref = services.allocate(line_item, repo, session)
+    except services.InvalidSku as e:
+        raise HTTPException(status_code=400, detail=str(e))
     return {"batchref": ref}

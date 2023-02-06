@@ -42,3 +42,13 @@ def test_happy_path_returns_201_and_allocated_batch(disk_session):
 
     assert r.status_code == 201
     assert r.json()["batchref"] == earlybatch
+
+
+def test_unhappy_path_returns_400_and_error_message(disk_session):
+    app.dependency_overrides[get_session] = lambda: disk_session
+    client = TestClient(app)
+    unknown_sku, orderid = random_sku(), random_orderid()
+    data = {"order_id": orderid, "sku": unknown_sku, "qty": 20}
+    r = client.post("/allocate", json=data)
+    assert r.status_code == 400
+    assert r.json()["detail"] == f"Invalid sku {unknown_sku}"
