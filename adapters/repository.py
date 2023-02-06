@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-import models
+import domain.models as models
 from sqlalchemy import select
 
 

@@ -1,9 +1,9 @@
 from datetime import date
 import uuid
 import pytest
-from models import Batch
-from repository import SqlRepository
-from the_api import app, get_session
+from domain.models import Batch
+from adapters.repository import SqlRepository
+from entrypoints.the_api import app, get_session
 
 from fastapi.testclient import TestClient
 

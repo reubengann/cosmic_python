@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from models import Batch, OrderLine, OutOfStock, allocate_line_to_batches
+from domain.models import Batch, OrderLine, OutOfStock, allocate_line_to_batches
 import pytest
 
 today = date.today()

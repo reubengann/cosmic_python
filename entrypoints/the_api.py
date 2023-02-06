@@ -1,9 +1,9 @@
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 
-import services
-import models
-from repository import SqlRepository
+import service_layer.services as services
+import domain.models as models
+from adapters.repository import SqlRepository
 
 app = FastAPI()
 

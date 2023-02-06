@@ -1,7 +1,7 @@
 # TEMPORARY --- DELETE THESE TESTS LATER
 
 from sqlalchemy import text
-import models
+import domain.models as models
 from datetime import date
 
 
