@@ -12,5 +12,18 @@ def in_memory_db():
 
 
 @pytest.fixture
+def test_db():
+    engine = create_engine("sqlite:///unittest.db")
+    metadata.create_all(engine)
+    yield engine
+    metadata.drop_all(engine)
+
+
+@pytest.fixture
 def session(in_memory_db):
     yield sessionmaker(bind=in_memory_db)()
+
+
+@pytest.fixture
+def disk_session(test_db):
+    yield sessionmaker(bind=test_db)()
