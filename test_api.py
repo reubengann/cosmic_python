@@ -20,7 +20,7 @@ def random_batchref(name: str | int = ""):
     return f"batch-{name}-{random_suffix()}"
 
 
-def random_orderid(name=""):
+def random_orderid(name: str | int = ""):
     return f"order-{name}-{random_suffix()}"
 
 
@@ -52,3 +52,28 @@ def test_unhappy_path_returns_400_and_error_message(disk_session):
     r = client.post("/allocate", json=data)
     assert r.status_code == 400
     assert r.json()["detail"] == f"Invalid sku {unknown_sku}"
+
+
+def test_allocations_are_persisted(disk_session):
+    app.dependency_overrides[get_session] = lambda: disk_session
+    client = TestClient(app)
+
+    sku = random_sku()
+    batch1, batch2 = random_batchref(1), random_batchref(2)
+    order1, order2 = random_orderid(1), random_orderid(2)
+    repo = SqlRepository(disk_session)
+    repo.add(Batch(batch1, sku, 10, date(2011, 1, 1)))
+    repo.add(Batch(batch2, sku, 10, date(2011, 1, 2)))
+    disk_session.commit()
+    line1 = {"order_id": order1, "sku": sku, "qty": 10}
+    line2 = {"order_id": order2, "sku": sku, "qty": 10}
+
+    # first order uses up all stock in batch 1
+    r = client.post(f"/allocate", json=line1)
+    assert r.status_code == 201
+    assert r.json()["batchref"] == batch1
+
+    # second order should go to batch 2
+    r = client.post(f"/allocate", json=line2)
+    assert r.status_code == 201
+    assert r.json()["batchref"] == batch2
