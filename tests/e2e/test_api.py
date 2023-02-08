@@ -90,3 +90,15 @@ def test_400_message_for_out_of_stock(disk_session):
     r = client.post(f"/allocate", json=data)
     assert r.status_code == 400
     assert r.json()["detail"] == f"Out of stock for sku {sku}"
+
+
+def test_add_batch_works(disk_session):
+    app.dependency_overrides[get_session] = lambda: disk_session
+    repo = SqlRepository(disk_session)
+    client = TestClient(app)
+    sku = random_sku()
+    batch1 = random_batchref(1)
+    data = {"ref": batch1, "sku": sku, "qty": 10, "date": str(date(2011, 1, 1))}
+    r = client.post(f"/batch", json=data)
+    assert r.status_code == 201
+    assert len(repo.list()) == 1

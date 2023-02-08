@@ -1,3 +1,6 @@
+from datetime import date
+from typing import Optional
+
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 
@@ -18,6 +21,13 @@ class LineItemRequest(BaseModel):
     qty: int
 
 
+class BatchRequest(BaseModel):
+    ref: str
+    sku: str
+    qty: int
+    eta: Optional[date]
+
+
 @app.post("/allocate", status_code=201)
 def allocate_endpoint(line: LineItemRequest, session=Depends(get_session)):
     repo = SqlRepository(session)
@@ -26,3 +36,10 @@ def allocate_endpoint(line: LineItemRequest, session=Depends(get_session)):
     except (services.InvalidSku, models.OutOfStock) as e:
         raise HTTPException(status_code=400, detail=str(e))
     return {"batchref": ref}
+
+
+@app.post("/batch", status_code=201)
+def batch_endpoint(batch: BatchRequest, session=Depends(get_session)):
+    repo = SqlRepository(session)
+    services.add_batch(batch.ref, batch.sku, batch.qty, batch.eta, repo, session)
+    return {"message": "ok"}
