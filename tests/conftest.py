@@ -1,6 +1,7 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from adapters.orm import metadata
 
 
@@ -23,6 +24,9 @@ def test_db():
 def session(in_memory_db):
     yield sessionmaker(bind=in_memory_db)()
 
+@pytest.fixture
+def session_factory(in_memory_db):
+    yield sessionmaker(bind=in_memory_db)
 
 @pytest.fixture
 def disk_session(test_db):
