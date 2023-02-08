@@ -1,7 +1,6 @@
 import pytest
 
 import adapters.repository as repository
-import domain.models as models
 import service_layer.services as services
 
 
@@ -27,16 +26,18 @@ class FakeSession:
 
 
 def test_returns_allocation():
-    batch = models.Batch("b1", "COMPLICATED-LAMP", 100, eta=None)
-    repo = FakeRepository([batch])
+    repo = FakeRepository([])
+    session = FakeSession()
+    services.add_batch("b1", "COMPLICATED-LAMP", 100, None, repo, session)
 
     result = services.allocate("o1", "COMPLICATED-LAMP", 10, repo, FakeSession())
     assert result == "b1"
 
 
 def test_error_for_invalid_sku():
-    batch = models.Batch("b1", "AREALSKU", 100, eta=None)
-    repo = FakeRepository([batch])
+    repo = FakeRepository([])
+    session = FakeSession()
+    services.add_batch("b1", "AREALSKU", 100, None, repo, session)
 
     with pytest.raises(services.InvalidSku, match="Invalid sku NONEXISTENTSKU"):
         services.allocate("o1", "NONEXISTENTSKU", 10, repo, FakeSession())
@@ -50,8 +51,9 @@ def test_add_batch():
 
 
 def test_commits():
-    batch = models.Batch("b1", "OMINOUS-MIRROR", 100, eta=None)
-    repo = FakeRepository([batch])
+    repo = FakeRepository([])
+    session = FakeSession()
+    services.add_batch("b1", "OMINOUS-MIRROR", 100, None, repo, session)
     session = FakeSession()
 
     services.allocate("o1", "OMINOUS-MIRROR", 10, repo, session)
