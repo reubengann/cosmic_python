@@ -20,10 +20,9 @@ class LineItemRequest(BaseModel):
 
 @app.post("/allocate", status_code=201)
 def allocate_endpoint(line: LineItemRequest, session=Depends(get_session)):
-    line_item = models.OrderLine(line.order_id, line.sku, line.qty)
     repo = SqlRepository(session)
     try:
-        ref = services.allocate(line_item, repo, session)
+        ref = services.allocate(line.order_id, line.sku, line.qty, repo, session)
     except (services.InvalidSku, models.OutOfStock) as e:
         raise HTTPException(status_code=400, detail=str(e))
     return {"batchref": ref}
