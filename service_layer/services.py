@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Optional
-import domain.models as models
+from domain import models
 from domain.models import OrderLine
 from adapters.repository import Repository
 
