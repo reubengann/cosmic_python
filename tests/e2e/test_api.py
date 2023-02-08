@@ -1,11 +1,11 @@
-from datetime import date
 import uuid
-import pytest
-from domain.models import Batch
-from adapters.repository import SqlRepository
-from entrypoints.the_api import app, get_session
+from datetime import date
 
 from fastapi.testclient import TestClient
+
+from adapters.repository import SqlRepository
+from domain.models import Batch
+from entrypoints.the_api import app, get_session
 
 
 def random_suffix():

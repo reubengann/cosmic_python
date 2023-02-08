@@ -1,8 +1,10 @@
 # TEMPORARY --- DELETE THESE TESTS LATER
 
-from sqlalchemy import text
-import domain.models as models
 from datetime import date
+
+from sqlalchemy import text
+
+import domain.models as models
 
 
 def test_orderline_mapper_can_load_lines(session):

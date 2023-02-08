@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
-import domain.models as models
+
 from sqlalchemy import select
+
+import domain.models as models
 
 
 class Repository(ABC):

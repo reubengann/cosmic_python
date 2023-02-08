@@ -1,8 +1,9 @@
 from datetime import date
 from typing import Optional
+
+from adapters.repository import Repository
 from domain import models
 from domain.models import OrderLine
-from adapters.repository import Repository
 
 
 class InvalidSku(Exception):

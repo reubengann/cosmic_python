@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Optional, Set
 
+
 class OutOfStock(Exception):
     pass
 

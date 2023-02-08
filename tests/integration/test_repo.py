@@ -1,5 +1,6 @@
-import domain.models as models
 from sqlalchemy import text
+
+import domain.models as models
 from adapters.repository import SqlRepository
 
 
