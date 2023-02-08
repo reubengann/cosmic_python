@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 from adapters.repository import SqlRepository
 from domain.models import Batch
-from entrypoints.the_api import app, get_session
+from entrypoints.the_api import app, get_session_factory
 
 
 def random_suffix():
@@ -24,8 +24,8 @@ def random_orderid(name: str | int = ""):
     return f"order-{name}-{random_suffix()}"
 
 
-def test_happy_path_returns_201_and_allocated_batch(disk_session):
-    app.dependency_overrides[get_session] = lambda: disk_session
+def test_happy_path_returns_201_and_allocated_batch(disk_session_factory):
+    app.dependency_overrides[get_session_factory] = lambda: disk_session_factory
     client = TestClient(app)
 
     sku, othersku = random_sku(), random_sku("other")
@@ -42,8 +42,8 @@ def test_happy_path_returns_201_and_allocated_batch(disk_session):
     assert r.json()["batchref"] == earlybatch
 
 
-def test_unhappy_path_returns_400_and_error_message(disk_session):
-    app.dependency_overrides[get_session] = lambda: disk_session
+def test_unhappy_path_returns_400_and_error_message(disk_session_factory):
+    app.dependency_overrides[get_session_factory] = lambda: disk_session_factory
     client = TestClient(app)
     unknown_sku, orderid = random_sku(), random_orderid()
     data = {"order_id": orderid, "sku": unknown_sku, "qty": 20}
@@ -52,8 +52,8 @@ def test_unhappy_path_returns_400_and_error_message(disk_session):
     assert r.json()["detail"] == f"Invalid sku {unknown_sku}"
 
 
-def test_allocations_are_persisted(disk_session):
-    app.dependency_overrides[get_session] = lambda: disk_session
+def test_allocations_are_persisted(disk_session_factory):
+    app.dependency_overrides[get_session_factory] = lambda: disk_session_factory
     client = TestClient(app)
 
     sku = random_sku()
@@ -75,8 +75,8 @@ def test_allocations_are_persisted(disk_session):
     assert r.json()["batchref"] == batch2
 
 
-def test_400_message_for_out_of_stock(disk_session):
-    app.dependency_overrides[get_session] = lambda: disk_session
+def test_400_message_for_out_of_stock(disk_session_factory):
+    app.dependency_overrides[get_session_factory] = lambda: disk_session_factory
     client = TestClient(app)
     sku, small_batch, large_order = random_sku(), random_batchref(), random_orderid()
     add_batch(small_batch, sku, 10, date(2011, 1, 1), client)
@@ -86,9 +86,9 @@ def test_400_message_for_out_of_stock(disk_session):
     assert r.json()["detail"] == f"Out of stock for sku {sku}"
 
 
-def test_add_batch_works(disk_session):
-    app.dependency_overrides[get_session] = lambda: disk_session
-    repo = SqlRepository(disk_session)
+def test_add_batch_works(disk_session_factory):
+    app.dependency_overrides[get_session_factory] = lambda: disk_session_factory
+    repo = SqlRepository(disk_session_factory())
     client = TestClient(app)
     sku = random_sku()
     batch1 = random_batchref(1)

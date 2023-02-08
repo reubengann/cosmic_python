@@ -6,6 +6,9 @@ from adapters import repository
 
 
 class AbstractUnitOfWork(ABC):
+
+    batches: repository.Repository
+
     def __enter__(self) -> AbstractUnitOfWork:
         return self
 

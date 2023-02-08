@@ -24,10 +24,17 @@ def test_db():
 def session(in_memory_db):
     yield sessionmaker(bind=in_memory_db)()
 
+
 @pytest.fixture
 def session_factory(in_memory_db):
     yield sessionmaker(bind=in_memory_db)
 
+
 @pytest.fixture
 def disk_session(test_db):
     yield sessionmaker(bind=test_db)()
+
+
+@pytest.fixture
+def disk_session_factory(test_db):
+    yield sessionmaker(bind=test_db)
