@@ -32,11 +32,9 @@ def test_happy_path_returns_201_and_allocated_batch(disk_session):
     earlybatch = random_batchref(1)
     laterbatch = random_batchref(2)
     otherbatch = random_batchref(3)
-    repo = SqlRepository(disk_session)
-    repo.add(Batch(laterbatch, sku, 100, date(2011, 1, 2)))
-    repo.add(Batch(earlybatch, sku, 100, date(2011, 1, 1)))
-    repo.add(Batch(otherbatch, othersku, 100, None))
-    disk_session.commit()
+    add_batch(laterbatch, sku, 100, date(2011, 1, 2), client)
+    add_batch(earlybatch, sku, 100, date(2011, 1, 1), client)
+    add_batch(otherbatch, othersku, 100, None, client)
     data = {"order_id": random_orderid(), "sku": sku, "qty": 3}
     r = client.post("/allocate", json=data)
 
@@ -61,10 +59,8 @@ def test_allocations_are_persisted(disk_session):
     sku = random_sku()
     batch1, batch2 = random_batchref(1), random_batchref(2)
     order1, order2 = random_orderid(1), random_orderid(2)
-    repo = SqlRepository(disk_session)
-    repo.add(Batch(batch1, sku, 10, date(2011, 1, 1)))
-    repo.add(Batch(batch2, sku, 10, date(2011, 1, 2)))
-    disk_session.commit()
+    add_batch(batch1, sku, 10, date(2011, 1, 1), client)
+    add_batch(batch2, sku, 10, date(2011, 1, 2), client)
     line1 = {"order_id": order1, "sku": sku, "qty": 10}
     line2 = {"order_id": order2, "sku": sku, "qty": 10}
 
@@ -83,9 +79,7 @@ def test_400_message_for_out_of_stock(disk_session):
     app.dependency_overrides[get_session] = lambda: disk_session
     client = TestClient(app)
     sku, small_batch, large_order = random_sku(), random_batchref(), random_orderid()
-    repo = SqlRepository(disk_session)
-    repo.add(Batch(small_batch, sku, 10, date(2011, 1, 1)))
-    disk_session.commit()
+    add_batch(small_batch, sku, 10, date(2011, 1, 1), client)
     data = {"order_id": large_order, "sku": sku, "qty": 20}
     r = client.post(f"/allocate", json=data)
     assert r.status_code == 400
@@ -98,7 +92,16 @@ def test_add_batch_works(disk_session):
     client = TestClient(app)
     sku = random_sku()
     batch1 = random_batchref(1)
-    data = {"ref": batch1, "sku": sku, "qty": 10, "date": str(date(2011, 1, 1))}
+    data = {"ref": batch1, "sku": sku, "qty": 10, "eta": str(date(2011, 1, 1))}
     r = client.post(f"/batch", json=data)
     assert r.status_code == 201
-    assert len(repo.list()) == 1
+    batches = repo.list()
+    assert len(batches) == 1
+    assert batches[0].eta == date(2011, 1, 1)
+
+
+def add_batch(batchref: str, sku: str, qty: int, dt: date | None, client: TestClient):
+    data = {"ref": batchref, "sku": sku, "qty": qty}
+    if dt is not None:
+        data["eta"] = str(dt)
+    client.post(f"/batch", json=data)
